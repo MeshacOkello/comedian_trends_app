@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cattelan Banana Trends</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%);
+            color: #1F2937;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1E40AF;
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 24px;
+            color: #4B5563;
+            text-align: center;
+        }
+        .form-container {
+            background-color: #FFFFFF;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            transition: transform 0.3s ease;
+        }
+        .form-container:hover {
+            transform: translateY(-4px);
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        @media (min-width: 640px) {
+            .form-row {
+                flex-direction: row;
+            }
+        }
+        .form-group {
+            flex: 1;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1F2937;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background-color: #3B82F6;
+            color: #FFFFFF;
+        }
+        .btn-primary:hover {
+            background-color: #2563EB;
+        }
+        .btn-secondary {
+            background-color: #6B7280;
+            color: #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background-color: #4B5563;
+        }
+        .chart-toggle {
+            background-color: #10B981;
+            color: #FFFFFF;
+            margin: 16px auto;
+            display: block;
+        }
+        .chart-toggle:hover {
+            background-color: #059669;
+        }
+        .note {
+            font-size: 0.875rem;
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .error {
+            color: #EF4444;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-bottom: 24px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #3B82F6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 32px auto;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .spinner.show {
+            display: block;
+            opacity: 1;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .chart {
+            width: 100%;
+            min-height: 500px;
+            margin-bottom: 32px;
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in;
+        }
+        .chart.hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cattelan Banana Popularity Trends</h1>
+        <p>Search interest trends for <i>Comedian</i> the Banana.</p>
+        
+        <form class="form-container" id="date-form" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Generate</button>
+                <button type="button" onclick="resetDates()" class="btn-secondary">Reset</button>
+            </div>
+        </form>
+        
+        <p class="note">Dates must be between 2019-12-01 and 2025-04-01.</p>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        
+        <div id="spinner" class="spinner"></div>
+        
+        {% if charts %}
+            <button class="chart-toggle" onclick="toggleCharts()">Switch Chart</button>
+            {% for chart in charts %}
+                <div class="chart" id="chart-{{ loop.index }}" data-chart-id="{{ loop.index }}"></div>
+                <script>
+                    Plotly.newPlot('chart-{{ loop.index }}', {{ chart | safe }}.data, {{ chart | safe }}.layout);
+                </script>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // Reset Dates
+        function resetDates() {
+            document.getElementById('start_date').value = '2019-12-01';
+            document.getElementById('end_date').value = '2025-04-01';
+            document.getElementById('date-form').submit();
+        }
+
+        // Form Validation and Spinner
+        document.getElementById('date-form').addEventListener('submit', function(e) {
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            const startDt = new Date(startDate);
+            const endDt = new Date(endDate);
+            const minDate = new Date('2019-12-01');
+            const maxDate = new Date('2025-04-01');
+
+            if (!startDate || !endDate) {
+                e.preventDefault();
+                showError('Please fill in both dates.');
+                return;
+            }
+            if (startDt >= endDt) {
+                e.preventDefault();
+                showError('End date must be after start date.');
+                return;
+            }
+            if (startDt < minDate || endDt > maxDate) {
+                e.preventDefault();
+                showError('Dates must be between 2019-12-01 and 2025-04-01.');
+                return;
+            }
+
+            document.getElementById('spinner').classList.add('show');
+        });
+
+        // Hide spinner on load
+        window.addEventListener('load', () => {
+            document.getElementById('spinner').classList.remove('show');
+        });
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            const existingError = document.querySelector('.error');
+            if (existingError) existingError.remove();
+            document.querySelector('.form-container').after(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        // Toggle between charts
+        let currentChart = 1;
+        function toggleCharts() {
+            const charts = document.querySelectorAll('.chart');
+            charts.forEach(chart => {
+                chart.classList.add('hidden');
+                if (chart.id === `chart-${currentChart}`) {
+                    chart.classList.remove('hidden');
+                }
+            });
+            currentChart = currentChart === 1 ? 2 : 1;
+            document.querySelector('.chart-toggle').textContent = `Show Chart ${currentChart}`;
+        }
+
+        // Initialize chart visibility
+        document.addEventListener('DOMContentLoaded', () => {
+            const charts = document.querySelectorAll('.chart');
+            charts.forEach((chart, index) => {
+                if (index !== 0) chart.classList.add('hidden');
+            });
+            if (charts.length > 0) {
+                document.querySelector('.chart-toggle').textContent = 'Show Chart 2';
+            }
+        });
+    </script>
+</body>
+</html>
