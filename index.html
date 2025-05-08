@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cattelan Banana Trends</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%);
+            color: #1F2937;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1E40AF;
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+        p {
+            font-size: 1rem;
+            margin-bottom: 24px;
+            color: #4B5563;
+            text-align: center;
+        }
+        .form-container {
+            background-color: #FFFFFF;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            transition: transform 0.3s ease;
+        }
+        .form-container:hover {
+            transform: translateY(-4px);
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        @media (min-width: 640px) {
+            .form-row {
+                flex-direction: row;
+            }
+        }
+        .form-group {
+            flex: 1;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1F2937;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background-color: #3B82F6;
+            color: #FFFFFF;
+        }
+        .btn-primary:hover {
+            background-color: #2563EB;
+        }
+        .btn-secondary {
+            background-color: #6B7280;
+            color: #FFFFFF;
+        }
+        .btn-secondary:hover {
+            background-color: #4B5563;
+        }
+        .chart-toggle {
+            background-color: #10B981;
+            color: #FFFFFF;
+            margin: 16px auto;
+            display: block;
+        }
+        .chart-toggle:hover {
+            background-color: #059669;
+        }
+        .note {
+            font-size: 0.875rem;
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .error {
+            color: #EF4444;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-bottom: 24px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #3B82F6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 32px auto;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .spinner.show {
+            display: block;
+            opacity: 1;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .chart {
+            width: 100%;
+            min-height: 500px;
+            margin-bottom: 32px;
+            background-color: #FFFFFF;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in;
+        }
+        .chart.hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cattelan Banana Trends</h1>
+        <p>Search interest trends for <i>Comedian</i> the Banana.</p>
+        
+        <form class="form-container" id="date-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" value="2019-12-01" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" value="2025-04-01" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Generate</button>
+                <button type="button" onclick="resetDates()" class="btn-secondary">Reset</button>
+            </div>
+        </form>
+        
+        <p class="note">Dates must be between 2019-12-01 and 2025-04-01.</p>
+        
+        <div id="spinner" class="spinner"></div>
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <button class="chart-toggle" onclick="toggleCharts()" style="display: none;">Show Chart 2</button>
+        <div class="chart" id="chart-1"></div>
+        <div class="chart hidden" id="chart-2"></div>
+    </div>
+
+    <script>
+        // Embedded CSV data
+        const csvData = `Month,Comedian: (United States)
+2019-12,5
+2020-01,10
+2020-02,20
+2020-03,13
+2020-04,10
+2020-05,5
+2020-06,6
+2020-07,5
+2020-08,7
+2020-09,12
+2020-10,0
+2020-11,5
+2020-12,0
+2021-01,0
+2021-02,5
+2021-03,0
+2021-04,0
+2021-05,0
+2021-06,6
+2021-07,0
+2021-08,0
+2021-09,8
+2021-10,8
+2021-11,9
+2021-12,12
+2022-01,15
+2022-02,14
+2022-03,10
+2022-04,15
+2022-05,17
+2022-06,9
+2022-07,12
+2022-08,7
+2022-09,15
+2022-10,13
+2022-11,14
+2022-12,14
+2023-01,11
+2023-02,15
+2023-03,8
+2023-04,14
+2023-05,35
+2023-06,9
+2023-07,10
+2023-08,9
+2023-09,18
+2023-10,14
+2023-11,9
+2023-12,11
+2024-01,8
+2024-02,7
+2024-03,8
+2024-04,10
+2024-05,7
+2024-06,0
+2024-07,0
+2024-08,5
+2024-09,9
+2024-10,11
+2024-11,100
+2024-12,35
+2025-01,9
+2025-02,16
+2025-03,4
+2025-04,8
+2025-05,8`;
+
+        // Parse CSV to array of objects
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            return lines.slice(1).map(line => {
+                const [month, interest] = line.split(',');
+                return {
+                    Month: month + '-01', // Convert YYYY-MM to YYYY-MM-DD
+                    Search_Interest: parseFloat(interest)
+                };
+            });
+        }
+
+        const data = parseCSV(csvData);
+
+        // Reset Dates
+        function resetDates() {
+            document.getElementById('start_date').value = '2019-12-01';
+            document.getElementById('end_date').value = '2025-04-01';
+            document.getElementById('date-form').dispatchEvent(new Event('submit'));
+        }
+
+        // Show Error
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Calculate months between dates
+        function getMonthsBetween(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            return (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
+        }
+
+        // Calculate 3-month rolling average
+        function calculateRollingAverage(data, window = 3) {
+            return data.map((_, i) => {
+                const slice = data.slice(Math.max(0, i - window + 1), i + 1);
+                const avg = slice.reduce((sum, d) => sum + d.Search_Interest, 0) / slice.length;
+                return isNaN(avg) ? 0 : avg;
+            });
+        }
+
+        // Toggle Charts
+        let currentChart = 1;
+        function toggleCharts() {
+            const chart1 = document.getElementById('chart-1');
+            const chart2 = document.getElementById('chart-2');
+            chart1.classList.toggle('hidden');
+            chart2.classList.toggle('hidden');
+            currentChart = currentChart === 1 ? 2 : 1;
+            document.querySelector('.chart-toggle').textContent = `Show Chart ${currentChart}`;
+        }
+
+        // Form Submission
+        document.getElementById('date-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const spinner = document.getElementById('spinner');
+            spinner.classList.add('show');
+
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            const startDt = new Date(startDate);
+            const endDt = new Date(endDate);
+            const minDate = new Date('2019-12-01');
+            const maxDate = new Date('2025-04-01');
+
+            if (!startDate || !endDate) {
+                showError('Please fill in both dates.');
+                spinner.classList.remove('show');
+                return;
+            }
+            if (startDt >= endDt) {
+                showError('End date must be after start date.');
+                spinner.classList.remove('show');
+                return;
+            }
+            if (startDt < minDate || endDt > maxDate) {
+                showError('Dates must be between 2019-12-01 and 2025-04-01.');
+                spinner.classList.remove('show');
+                return;
+            }
+
+            // Filter data
+            const filteredData = data.filter(d => {
+                const date = new Date(d.Month);
+                return date >= startDt && date <= endDt;
+            });
+
+            if (filteredData.length === 0) {
+                showError('No data available for the selected date range.');
+                spinner.classList.remove('show');
+                return;
+            }
+
+            // Calculate tick interval
+            const months = getMonthsBetween(startDate, endDate);
+            const tickInterval = months <= 12 ? 'M1' : months <= 24 ? 'M3' : 'M6';
+
+            // Chart 1: Raw Search Interest
+            const trace1 = {
+                x: filteredData.map(d => d.Month),
+                y: filteredData.map(d => d.Search_Interest),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Search Interest',
+                line: { color: '#3B82F6', width: 2, shape: 'spline' }
+            };
+            const maxInterest = Math.max(...filteredData.map(d => d.Search_Interest));
+            const yRange = Math.max(maxInterest + 10, 20);
+            const layout1 = {
+                title: 'Search Interest Over Time',
+                xaxis: {
+                    title: 'Date',
+                    tickformat: '%Y-%m',
+                    dtick: tickInterval
+                },
+                yaxis: {
+                    title: 'Search Interest',
+                    dtick: 10,
+                    range: [0, yRange]
+                },
+                height: 500,
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                margin: { l: 40, r: 40, t: 60, b: 40 }
+            };
+            Plotly.newPlot('chart-1', [trace1], layout1);
+
+            // Chart 2: 3-Month Rolling Average
+            const rollingAvg = calculateRollingAverage(filteredData);
+            const trace2 = {
+                x: filteredData.map(d => d.Month),
+                y: rollingAvg,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: '3-Month Rolling Average',
+                line: { color: '#10B981', width: 2, shape: 'spline' }
+            };
+            const maxRolling = Math.max(...rollingAvg);
+            const yRange2 = Math.max(maxRolling + 10, 20);
+            const layout2 = {
+                title: '3-Month Rolling Average of Search Interest',
+                xaxis: {
+                    title: 'Date',
+                    tickformat: '%Y-%m',
+                    dtick: tickInterval
+                },
+                yaxis: {
+                    title: 'Search Interest (Rolling Avg)',
+                    dtick: 10,
+                    range: [0, yRange2]
+                },
+                height: 500,
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                margin: { l: 40, r: 40, t: 60, b: 40 }
+            };
+            Plotly.newPlot('chart-2', [trace2], layout2);
+
+            // Show toggle button and initialize charts
+            document.querySelector('.chart-toggle').style.display = 'block';
+            document.getElementById('chart-1').classList.remove('hidden');
+            document.getElementById('chart-2').classList.add('hidden');
+            document.querySelector('.chart-toggle').textContent = 'Show Chart 2';
+
+            spinner.classList.remove('show');
+        });
+
+        // Hide spinner on load
+        window.addEventListener('load', () => {
+            document.getElementById('spinner').classList.remove('show');
+        });
+    </script>
+</body>
+</html>
